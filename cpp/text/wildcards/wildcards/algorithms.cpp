@@ -349,7 +349,9 @@ bool Algorithms::findIteratorIterator(const tstring& text, const tstring& filter
 
 void Algorithms::mainAsserts()
 {
-    tstring data = _T("new tes;ted project-12, and 75_protection of various systems.");
+#ifdef _DEBUG
+	tstring data = _T("new tes;ted project-12, and 75_protection of various systems.");
+#endif
 
     // default mode:
      // "*"

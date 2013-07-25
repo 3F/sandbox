@@ -4,7 +4,7 @@
 #include "algorithms.hpp"
 #include <iostream>
 
-void analysis(string caption, bool(*method)(const tstring&, const tstring&), int iterations, tstring& data, tstring& filter)
+void analysis(const string& caption, bool(*method)(const tstring&, const tstring&), int iterations, tstring& data, tstring& filter)
 {
     cout << caption;
     Algorithms::startTime();
