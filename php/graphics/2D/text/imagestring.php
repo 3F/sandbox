@@ -30,10 +30,26 @@
 
 namespace reg\graphics\_2d\text\imagestring;
 
+interface ITypeOutput
+{
+    const STREAM    = 0;
+    const FILE      = 1;
+}
+
+interface IParts
+{
+    const ALL       = -1;
+    const FIRST     = 0;
+}
+
 /**
  * if only imagestring() -_- e.g.: 3QF232 (see my public repo)
- * \png support
+ * Work with GDF Binary data
+ * Supports: multiline; auto-wrapper; pages; style control; etc.,
+ * \png
  * simple html-style implementation
+ * 
+ * for advanced work with text, see - imagettftext() !
  */
 class TextRender
 {
@@ -53,6 +69,12 @@ class TextRender
      * @var integer 
      */
     public $quality     = 4;
+    
+    /**
+     * the string is always wrapped(i.e. is broken apart) at or before the possible len if true 
+     * @var boolean 
+     */
+    public $splitHeavy  = false;
     
     /**
      * loaded font
@@ -90,21 +112,35 @@ class TextRender
         $this->_width   = $width;
         $this->_height  = $height;
     }
-
+    
     /**
+     * 
      * @param string $text
-     * @param array $color      - RGB, foreground
-     * @param array $bgColor    - RGB, background
-     * @param boolean $alpha    - transparent
-     * @return int              - number of rendered parts
+     * @param GDFColor $c - RGB, foreground, RGB, background, transparent
+     * @return int        - number of rendered parts
      */
-    public function renderIntoFile($text, $color = array(0, 0, 0), $bgColor = array(255, 255, 255), $alpha = true)
+    public function renderIntoFile($text, GDFColor $c)
+    {
+        return $this->render(ITypeOutput::FILE, $text, $c->foreground, $c->background, $c->alpha);
+    }
+    
+    public function renderIntoStream($text, GDFColor $c)
+    {
+        return $this->render(ITypeOutput::STREAM, $text, $c->foreground, $c->background, $c->alpha, IParts::FIRST);
+    }
+    
+    public function renderIntoStreamPart($part, $text, GDFColor $c)
+    {
+        return $this->render(ITypeOutput::STREAM, $text, $c->foreground, $c->background, $c->alpha, $part);
+    }    
+    
+    public function render($type, $text, $color, $bgColor, $alpha, $part = IParts::ALL)
     {
         $text = self::format($text);
         if($this->_width != -1){
             $text = $this->wordwrap($this->possibleSymbolsLength(), $text);
         }
-        return $this->_renderAllParts($text, $color, $bgColor, $alpha); //auto
+        return $this->_renderParts($type, $text, $color, $bgColor, $alpha, $part); //auto
     }
     
     /**
@@ -139,9 +175,9 @@ class TextRender
         $this->_renderFname = $tpl;
     }
     
-    public static function wordwrap($maxlen, $text)
+    public function wordwrap($maxlen, $text)
     {
-        return wordwrap($text, $maxlen, self::SYMBSPLIT);
+        return wordwrap($text, $maxlen, self::SYMBSPLIT, $this->splitHeavy);
     }
     
     public static function utf8To1251($text)
@@ -210,17 +246,20 @@ class TextRender
     {
         header('Content-type: image/png');
         imagepng($img);
-        exit(); //protect
     }
     
     /**
+     * output into file
      * @param resource $img
-     * @param string $fname
+     * @param string $postfix
      */
-    protected function _saveImage(&$img, $fname)
+    protected function _saveImage(&$img, $postfix)
     {
+        if($this->_renderFname == null){
+            throw new \Exception('is not set file path for rendering');
+        }        
 //      System::getSettings()['render']['quality'];
-        imagepng($img, $fname, $this->quality);
+        imagepng($img, $this->_renderFname . $postfix . '.png', $this->quality);
         imagedestroy($img);
     }
     
@@ -240,13 +279,16 @@ class TextRender
     
     /**
      * Automatic calculation of limits page & render to file
+     * @param \ITypeOutput $type
      * @param string $text
+     * @param int $part     - render the part of the divided
      * @param array $color
      * @param array $bgColor
      * @param boolean $alpha
      * @return int
+     * @throws \Exception
      */
-    protected function _renderAllParts(&$text, $color, $bgColor, $alpha)
+    protected function _renderParts($type, &$text, array $color, array $bgColor, $alpha, $part = IParts::ALL)
     {
         if($text{strlen($text) - 1} != self::SYMBSPLIT){
             $text .= self::SYMBSPLIT;
@@ -258,7 +300,11 @@ class TextRender
         $positions = array(0);
         $this->positionsOfSymbol(self::SYMBSPLIT, $text, $positions);
         
-        for($i = 0; $i < $parts; ++$i){
+        for($i = 0; $i < $parts; ++$i)
+        {            
+            if($type == ITypeOutput::STREAM){
+                $i = min(max(IParts::FIRST, $part), $parts - 1);
+            }
             $start      = $positions[$i * $max];
             $indexMax   = ($i + 1) * $max;
             
@@ -274,10 +320,13 @@ class TextRender
             
             $img = $this->_createImageByLines($linesOfPart, $color, $bgColor, $alpha);
             
-            if($this->_renderFname == null){
-                throw new \Exception('is not set file path for rendering');
+            if($type != ITypeOutput::STREAM){
+                $this->_saveImage($img, $i);
             }
-            $this->_saveImage($img, $this->_renderFname . $i . '.png');
+            else{
+                $this->_showImage($img);
+                return $parts;
+            }
         }
         return $parts;
     }
@@ -316,6 +365,32 @@ class TextRender
     protected static function formatBold(&$text)
     {
         return preg_replace("#</?b>#", self::SYMBBOLD, $text);
+    }
+}
+
+class GDFColor
+{
+    /**
+     * RGB, background
+     * @var array 
+     */
+    public $background  = null;
+    /**
+     * RGB, foreground
+     * @var array 
+     */
+    public $foreground  = null;
+    /**
+     * transparent
+     * @var boolean 
+     */
+    public $alpha       = false;
+    
+    public function __construct(array $color = array(0, 0, 0), array $bgColor = array(255, 255, 255), $alpha = true)
+    {
+        $this->foreground = $color;
+        $this->background = $bgColor;
+        $this->alpha      = $alpha;
     }
 }
 
