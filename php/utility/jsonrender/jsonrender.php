@@ -46,7 +46,7 @@ class TTFParam
      * @var string
      */
     public $name    = "fonts/TrueType/Courier_New/normal.ttf";
-    public $size    = 14;
+    public $size    = 9;
     
     /**
      * different font style
@@ -89,10 +89,17 @@ class JsonData
         $ret = array();
         foreach($tpl->jsonElems as $elem){
             $val = $o; // :(
-            foreach($elem as $path){
-                $val = $val[$path];
+            for($i = 0, $n = count($elem) - 1; $i < $n; ++$i){
+                $val = $val[$elem[$i]];
             }
-            $ret[] = $val;
+            
+            $l = $this->callbackParser($elem[$i]);
+            if($l instanceof WrapperCallback){
+                $ret[] = call_user_func($l->function, $val[$l->level]);
+            }
+            else{
+                $ret[] = $val[$l];
+            }
         }
         $this->_data = $this->formatData($tpl->caption, $ret);
     }
@@ -126,6 +133,8 @@ class JsonData
         imagefilledrectangle($img, 0, 0, $w, $h, $background);
         imagettftext($img, $ttf->size, 0, $left, $top, $foreground, $ttf->name, $this->_data);
         
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: Sat, 14 Jul 1990 01:00:00 GMT');        
         header('Content-Type: image/png');
         imagepng($img);
         imagedestroy($img);
@@ -150,6 +159,19 @@ class JsonData
                     return array_shift($values);
                   }
                 , $str);
+    }
+    
+    /**
+     * @param string $str - last level
+     * @return mixed - WrapperCallback / string
+     */
+    protected function callbackParser($str)
+    {
+        preg_match("#([^\($]+)(?:\(([^\)]+))?#", $str, $match);
+        if(isset($match[2])){
+           return new WrapperCallback($match[1], $match[2]);
+        }
+        return $match[1];
     }
 }
 
@@ -187,5 +209,19 @@ class Formatter
             $ret[] = explode('.', $elem);
         }
         return $ret;
+    }
+}
+
+class WrapperCallback
+{
+    /**  @var string */
+    public $level;
+    /** @var string */
+    public $function;
+    
+    public function __construct($level, $function)
+    {
+        $this->level    = $level;
+        $this->function = __NAMESPACE__ . '\\' . $function;
     }
 }

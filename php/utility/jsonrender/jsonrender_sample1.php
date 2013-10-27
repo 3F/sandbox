@@ -11,18 +11,36 @@ namespace reg\utility\jsonrender;
 require_once 'jsonrender.php';
 
 $tpl = new Formatter(
-            "%s [Top-OS: %s: %s% / Top-Countries: %s: %s%]", 
+            ":: %s [Top-OS: %s: %s% / Top-Country: %s: %s%] (%s..)", 
             array(
                 "total", 
                 'summaries.os.top', 
                 'summaries.os.percent', 
                 'summaries.geo.top', 
-                'summaries.geo.percent'
+                'summaries.geo.percent',
+                'countries(countriesFormat)'
             )
        );
 
+/**
+ * callback example
+ * @param array $val
+ */
+function countriesFormat(array $val)
+{
+    $ret = '';
+    $idx = 1;
+    foreach($val as $country){
+        $ret .= $country[0] . ', ';
+        if(++$idx > 5){
+            break;
+        }
+    }
+    return $ret;
+}
+
 $json = new JsonData();
-$json->fromString($tpl, '{"period": "weekly", "total": 82, "summaries": {"os": {"top": "Windows", "percent": 53}, "geo": {"top": "Spain", "percent": 46}}}');
+$json->fromString($tpl, '{"oses": [["Windows", 47], ["Unknown", 38]], "countries": [["Spain", 38], ["Russia", 30], ["Ukraine", 9], ["Belarus", 6], ["Sweden", 2]], "period": "weekly", "total": 85, "summaries": {"os": {"top": "Windows", "percent": 55}, "geo": {"top": "Spain", "percent": 44}}}');
 //$json->fromUrl($tpl, "http://sourceforge.net/projects/<name>/files/stats/json?start_date=2013-09-18&end_date=2013-10-21");
 //echo $json->getData();
 $json->renderSimple(new TTFParam());
