@@ -1,0 +1,5 @@
+Microsoft typography - Courier New:
+    http://www.microsoft.com/typography/fonts/family.aspx?FID=10
+
+TrueType core fonts for the Web EULA:
+    http://www.microsoft.com/typography/fontpack/eula.htm
