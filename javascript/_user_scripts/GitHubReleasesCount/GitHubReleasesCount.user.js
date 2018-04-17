@@ -2,18 +2,25 @@
 // @name        GitHubReleasesCount
 // @description To show download counter for each attachment from Releases page on GitHub.com
 // @namespace   net.r_eg.GitHubReleasesCount
-// @version     0.2
+// @version     0.3
 // @grant       none
 // @include     https://github.com/*/*/releases*
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
+// @updateURL   https://raw.githubusercontent.com/3F/sandbox/master/javascript/_user_scripts/GitHubReleasesCount/GitHubReleasesCount.user.js
+// @downloadURL https://raw.githubusercontent.com/3F/sandbox/master/javascript/_user_scripts/GitHubReleasesCount/GitHubReleasesCount.user.js
 // @author      https://github.com/3F
-// @license     MIT
 // ==/UserScript==
 
 /* 
- https://github.com/3F/sandbox/tree/master/javascript/_user_scripts/GitHubReleasesCount
- Tested via: Firefox 55.0.3 & 54.0.1 + Greasemonkey 3.11
+ Here's sandbox as the main page of this script at this time:
+ - https://github.com/3F/sandbox/tree/master/javascript/_user_scripts/GitHubReleasesCount
+ 
+ Tested via: 
+    - Firefox 59.0.2 + Greasemonkey 4.3
+    - Firefox 55.0.3 & 54.0.1 + Greasemonkey 3.11
+    
  Changes:
+     * 0.3: Fixed the work with modern GitHub version ~(Jan 2018 - Apr 2018)
      * 0.2: individual tags & multi-pages support (+async).
      * 0.1: first idea.
 */
@@ -38,7 +45,7 @@ $(function()
             this._dbg('get info: ' + url);
             $.get(url, function(apidata)
             {
-                $(".release-downloads li a").each(function()
+                $(".release-body li a").each(function()
                 {
                     var root = $(this);
                     var durl = root.attr('href');
@@ -57,7 +64,7 @@ $(function()
                         };
 
                         _this._dbg('insert data for #' + lnk.id + ': ' + durl);
-                        $("<span class='release-label latest'>" + lnk.download_count + "</span>")
+                        $("<span class='Label Label--outline Label--latest'>" + lnk.download_count + "</span>")
                             .insertBefore(root);
                     }
                 });
