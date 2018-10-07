@@ -55,6 +55,20 @@ While `svn export` just receives what you need from specific folder, the `git` w
 
 Thus, **ghdir** will always try first with svn. Then, if it's failed by some reason, it will use *git clone* with `--depth=1` key  and `core.sparseCheckout` to filter folders.
 
+#### svn for windows (without installation)
+
+just a tip for tortoisesvn:
+
+* https://tortoisesvn.net/downloads.html ([64-bit msi](https://osdn.net/projects/tortoisesvn/storage/1.10.1/Application/TortoiseSVN-1.10.1.28295-x64-svn-1.10.2.msi) / [32-bit msi](https://osdn.net/projects/tortoisesvn/storage/1.10.1/Application/TortoiseSVN-1.10.1.28295-win32-svn-1.10.2.msi))
+
+To extract svn.exe from this msi **without installation**, use **[msiextr](https://github.com/3F/sandbox/tree/master/shell/msiextr)** script:
+
+* https://github.com/3F/sandbox/tree/master/shell/msiextr
+
+Now you can use **ghdir** more efficiently:
+
+* `...\TortoiseSVN\bin\svn.exe`
+
 
 ## Hope
 
