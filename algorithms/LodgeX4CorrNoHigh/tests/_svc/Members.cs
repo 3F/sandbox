@@ -1,4 +1,4 @@
-﻿/*
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2021  Denis Kuzmin <x-3F@outlook.com> github/3F
@@ -23,12 +23,14 @@
  * THE SOFTWARE.
 */
 
-using BenchmarkDotNet.Running;
+using System.Linq;
+using System.Numerics;
 
-namespace net.r_eg.sandbox.BigNum
+namespace Tests._svc
 {
-    class Program
+    internal static class Members
     {
-        static void Main(string[] args) => BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
+        public static byte[] MultiplyViaBigInteger(byte[] a, byte[] b)
+            => (new BigInteger(a) * new BigInteger(b)).ToByteArray().Take(16).ToArray();
     }
 }

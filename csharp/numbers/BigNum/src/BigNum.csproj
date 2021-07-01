@@ -10,4 +10,8 @@
     <PackageReference Include="BenchmarkDotNet" Version="0.13.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\..\..\algorithms\LodgeX4CorrNoHigh\src\LodgeX4CorrNoHigh.cs" />
+  </ItemGroup>  
+
 </Project>

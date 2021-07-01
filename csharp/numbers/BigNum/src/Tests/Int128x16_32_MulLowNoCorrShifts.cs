@@ -32,10 +32,13 @@ namespace net.r_eg.sandbox.BigNum.Tests
 {
     /// <summary>
     /// Part of https://twitter.com/github3F/status/1403748080760111106
+    /// <br/>
+    /// Designed for 128x16 (expandable up to 128x32).
     /// </summary>
-    public class Int128AlgoMul32Overflow64
+    /// <remarks>For complete 128x128 see <see cref="Int128x128_LodgeX4CorrNoHigh60Mid6x2"/>.</remarks>
+    public class Int128x16_32_MulLowNoCorrShifts
     {
-        private const uint FACTOR_16 = 0x4D2F;
+        private const uint PRIME_16 = 0x4D2F;
         // * 128-bit number 0x6c62272e07bb014262b821756295c58d
 
         /*
@@ -57,7 +60,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
             byte[] input = { 0x8d, 0xc5, 0x95, 0x62, 0x75, 0x21, 0xb8, 0x62, 0x42, 0x01, 0xbb, 0x07, 0x2e, 0x27, 0x62, 0x6c };
             BigInteger bi = new BigInteger(input);
 
-            bi *= FACTOR_16;
+            bi *= PRIME_16;
             byte[] _ = bi.ToByteArray();
         }
 
@@ -66,7 +69,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
         {
             var bi = BigInteger.Parse("6c62272e07bb014262b821756295c58d", NumberStyles.AllowHexSpecifier);
 
-            bi *= FACTOR_16;
+            bi *= PRIME_16;
             byte[] _ = bi.ToByteArray();
         }
         
@@ -75,7 +78,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
         {
             var bi = BigInteger.Parse("144066263297769815596495629667062367629", NumberStyles.AllowLeadingSign);
 
-            bi *= FACTOR_16;
+            bi *= PRIME_16;
             byte[] _ = bi.ToByteArray();
         }
 
@@ -85,10 +88,10 @@ namespace net.r_eg.sandbox.BigNum.Tests
             ulong[] def128 = { 0x6c62272e, 0x07bb0142, 0x62b82175, 0x6295c58d };
             unchecked
             {
-                var a = def128[0] * FACTOR_16;
-                var b = def128[1] * FACTOR_16;
-                var c = def128[2] * FACTOR_16;
-                var d = def128[3] * FACTOR_16;
+                var a = def128[0] * PRIME_16;
+                var b = def128[1] * PRIME_16;
+                var c = def128[2] * PRIME_16;
+                var d = def128[3] * PRIME_16;
 
                 var _br1 = BitConverter.GetBytes((((c & 0xFFFFFFFF) + (d >> 32)) << 32) + (d & 0xFFFFFFFF));
                 var _br2 = BitConverter.GetBytes((((a & 0xFFFFFFFF) + (b >> 32)) << 32) + (b & 0xFFFFFFFF) + (c >> 32));
@@ -106,10 +109,10 @@ namespace net.r_eg.sandbox.BigNum.Tests
             {
                 ulong[] def128 = { 0x6c62272e, 0x07bb0142, 0x62b82175, 0x6295c58d };
 
-                var a = def128[0] * FACTOR_16;
-                var b = def128[1] * FACTOR_16;
-                var c = def128[2] * FACTOR_16;
-                var d = def128[3] * FACTOR_16;
+                var a = def128[0] * PRIME_16;
+                var b = def128[1] * PRIME_16;
+                var c = def128[2] * PRIME_16;
+                var d = def128[3] * PRIME_16;
 
                 var h = BitConverter.GetBytes((((c & 0xFFFFFFFF) + (d >> 32)) << 32) + (d & 0xFFFFFFFF));
                 var l = BitConverter.GetBytes((((a & 0xFFFFFFFF) + (b >> 32)) << 32) + (b & 0xFFFFFFFF) + (c >> 32));
@@ -129,10 +132,10 @@ namespace net.r_eg.sandbox.BigNum.Tests
             {
                 ulong[] def128 = { 0x6c62272e, 0x07bb0142, 0x62b82175, 0x6295c58d };
 
-                var a = def128[0] * FACTOR_16;
-                var b = def128[1] * FACTOR_16;
-                var c = def128[2] * FACTOR_16;
-                var d = def128[3] * FACTOR_16;
+                var a = def128[0] * PRIME_16;
+                var b = def128[1] * PRIME_16;
+                var c = def128[2] * PRIME_16;
+                var d = def128[3] * PRIME_16;
 
                 var _br1 = BitConverter.GetBytes(d & 0xFFFFFFFF);
                 var _br2 = BitConverter.GetBytes((c & 0xFFFFFFFF) + (d >> 32));
@@ -156,10 +159,10 @@ namespace net.r_eg.sandbox.BigNum.Tests
             {
                 ulong[] def128 = { 0x6c62272e, 0x07bb0142, 0x62b82175, 0x6295c58d };
 
-                var a = def128[0] * FACTOR_16;
-                var b = def128[1] * FACTOR_16;
-                var c = def128[2] * FACTOR_16;
-                var d = def128[3] * FACTOR_16;
+                var a = def128[0] * PRIME_16;
+                var b = def128[1] * PRIME_16;
+                var c = def128[2] * PRIME_16;
+                var d = def128[3] * PRIME_16;
 
                 var r2 = (c & 0xFFFFFFFF) + (d >> 32);
                 var r3 = (b & 0xFFFFFFFF) + (c >> 32);
@@ -181,10 +184,10 @@ namespace net.r_eg.sandbox.BigNum.Tests
             ulong a = 0x6c62272e, b = 0x07bb0142, c = 0x62b82175, d = 0x6295c58d, r2, r3, r4;
             unchecked
             {
-                a *= FACTOR_16;
-                b *= FACTOR_16;
-                c *= FACTOR_16;
-                d *= FACTOR_16;
+                a *= PRIME_16;
+                b *= PRIME_16;
+                c *= PRIME_16;
+                d *= PRIME_16;
             }
 
             r2 = (c & 0xFFFFFFFF) + (d >> 32);
