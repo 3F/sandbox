@@ -33,18 +33,20 @@ namespace net.r_eg.sandbox.BigNum.Tests
     /// Speed tests of <see cref="LodgeX4CorrNoHigh"/> implementation.
     /// </summary>
     /// <remarks>https://twitter.com/github3F/status/1410358979033813000</remarks>
-    public class Int128x128_LodgeX4CorrNoHigh60Mid6x2
+    public class Int128x128_LodgeX4CorrNoHigh
     {
         /*
-        |                               Method |       Mean |     Error |    StdDev |
-        |------------------------------------- |-----------:|----------:|----------:|
-        |                    BigInteger128x128 | 402.457 ns | 2.3621 ns | 1.9724 ns |
-        |       LodgeX4CorrNoHigh128x128_Bytes |  30.842 ns | 0.1940 ns | 0.1720 ns |
-        |      LodgeX4CorrNoHigh128x128_UInt64 |  21.077 ns | 0.1118 ns | 0.1046 ns |
-        | LodgeX4CorrNoHigh128x128_UInt64via32 |  18.991 ns | 0.0841 ns | 0.0787 ns |
-        |   LodgeX4CorrNoHigh128x128_EmbdBytes |  15.342 ns | 0.0596 ns | 0.0529 ns |
-        | LodgeX4CorrNoHigh128x128_10x_EmbdVar |   5.604 ns | 0.0276 ns | 0.0244 ns |
-         */
+        |                    Method |       Mean |     Error |    StdDev |
+        |-------------------------- |-----------:|----------:|----------:|
+        |         BigInteger128x128 | 408.568 ns | 2.0051 ns | 1.8756 ns |
+        |       LX4Cnh128x128_Bytes |  30.088 ns | 0.1178 ns | 0.0983 ns |
+        |      LX4Cnh128x128_UInt64 |  20.337 ns | 0.0700 ns | 0.0655 ns |
+        | LX4Cnh128x128_UInt64via32 |  17.895 ns | 0.0952 ns | 0.0795 ns |
+        |   LX4Cnh128x128_EmbdBytes |  14.541 ns | 0.0618 ns | 0.0516 ns |
+        |     LX4Cnh128x128_EmbdVar |   4.233 ns | 0.0135 ns | 0.0106 ns |
+       */
+
+        private ulong high, low;
 
         [Benchmark]
         public void BigInteger128x128()
@@ -56,7 +58,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
         }
 
         [Benchmark]
-        public void LodgeX4CorrNoHigh128x128_Bytes()
+        public void LX4Cnh128x128_Bytes()
         {
             byte[] _ = LodgeX4CorrNoHigh.Multiply
             (
@@ -66,7 +68,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
         }
 
         [Benchmark]
-        public void LodgeX4CorrNoHigh128x128_UInt64()
+        public void LX4Cnh128x128_UInt64()
         {
             ulong _ = LodgeX4CorrNoHigh.Multiply
             (
@@ -77,7 +79,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
         }
 
         [Benchmark]
-        public void LodgeX4CorrNoHigh128x128_UInt64via32()
+        public void LX4Cnh128x128_UInt64via32()
         {
             ulong _ = LodgeX4CorrNoHigh.Multiply
             (
@@ -89,13 +91,13 @@ namespace net.r_eg.sandbox.BigNum.Tests
 
 
         [Benchmark]
-        public void LodgeX4CorrNoHigh128x128_EmbdBytes()
+        public void LX4Cnh128x128_EmbdBytes()
         {
             uint a = 0xC1F42719, b = 0x80F30FED, c = 0x81EF70CC, d = 0xBC6EF2EF;
             uint ma = 0xDEF03F01, mb = 0x42D0ACD2, mc = 0x1749BEF1, md = 0xEA30FF94;
 
             ulong high, low;
-            unchecked{/*(c) Denis Kuzmin <x-3F@outlook.com> github/3F */ulong A=(ulong)b*mb;ulong B=A&0xFFFF_FFFF;ulong C=((A>>32)+B+(a*ma))&0xFFFF_FFFF;ulong D=(a>b)?a-b:b-a;ulong E=(ma>mb)?ma-mb:mb-ma;if(D!=0&&E!=0){ulong F=D*E;if((!(a>b)&&(ma>mb))||((a>b)&&!(ma>mb))){C+=F&0xFFFF_FFFF;}else{C-=F&0xFFFF_FFFF;}}ulong G=(C<<32)+B;A=(ulong)c*mc;ulong H=(ulong)d*md;B=(H>>32)+(H&0xFFF_FFFF_FFFF_FFFF)+(A&0xFFF_FFFF_FFFF_FFFF)+((A&0xFFF_FFFF)<<32);C=((((A>>28)+(A>>60)+(H>>60))<<28)>>16)+(B>>48);ulong I=B&0xFFFF_FFFF_FFFF;D=(c>d)?c-d:d-c;E=(mc>md)?mc-md:md-mc;if(D!=0&&E!=0){ulong F=D*E;ulong J=(F>>48);ulong K=F&0xFFFF_FFFF_FFFF;B=I;if((!(c>d)&&(mc>md))||((c>d)&&!(mc>md))){I+=K;C+=J;if(B>(I&0xFFFF_FFFF_FFFF))++C;}else{I-=K;C-=J;if(B<(I&0xFFFF_FFFF_FFFF))--C;}}ulong L=((I&0xFFFF_FFFF)<<32)+(H&0xFFFF_FFFF);C=G+L+((C<<16)+((I>>32)&0xFFFF));G=((ulong)a<<32)+b;I=((ulong)c<<32)+d;A=((ulong)ma<<32)+mb;H=((ulong)mc<<32)+md;D=(G>I)?G-I:I-G;E=(A>H)?A-H:H-A;if(D!=0&&E!=0){ulong F=D*E;if((!(G>I)&&(A>H))||((G>I)&&!(A>H))){C+=F;}else{C-=F;}}low=L;high=C;}
+            unchecked{/*LX4Cnh (c) Denis Kuzmin <x-3F@outlook.com> github/3F */ulong A=(ulong)b*mb;ulong B=A&0xFFFF_FFFF;ulong C=((A>>32)+B+(a*ma))&0xFFFF_FFFF;ulong D=(a>b)?a-b:b-a;ulong E=(ma>mb)?ma-mb:mb-ma;if(D!=0&&E!=0){ulong F=D*E;if(((a<b)&&(ma>mb))||((a>b)&&(ma<mb))){C+=F&0xFFFF_FFFF;}else{C-=F&0xFFFF_FFFF;}}ulong G=(C<<32)+B;A=(ulong)c*mc;ulong H=(ulong)d*md;B=(H>>32)+(H&0xFFF_FFFF_FFFF_FFFF)+(A&0xFFF_FFFF_FFFF_FFFF)+((A&0xFFF_FFFF)<<32);C=(((A>>28)+(A>>60)+(H>>60))<<28);ulong I=B;D=(c>d)?c-d:d-c;E=(mc>md)?mc-md:md-mc;if(D!=0&&E!=0){ulong F=D*E;if(((c<d)&&(mc>md))||((c>d)&&(mc<md))){I+=F;if(B>I)C+=0x100000000;}else{I-=F;if(B<I)C-=0x100000000;}}ulong J=((I&0xFFFF_FFFF)<<32)+(H&0xFFFF_FFFF);C=G+J+C+(I>>32);G=((ulong)a<<32)+b;I=((ulong)c<<32)+d;A=((ulong)ma<<32)+mb;H=((ulong)mc<<32)+md;D=(G>I)?G-I:I-G;E=(A>H)?A-H:H-A;if(D!=0&&E!=0){ulong F=D*E;if(((G<I)&&(A>H))||((G>I)&&(A<H))){C+=F;}else{C-=F;}}low=J;high=C;}
 
             byte[] _ =
             {
@@ -120,15 +122,14 @@ namespace net.r_eg.sandbox.BigNum.Tests
         }
 
         [Benchmark]
-        public void LodgeX4CorrNoHigh128x128_10x_EmbdVar()
+        public void LX4Cnh128x128_EmbdVar()
         {
             uint a = 0xC1F42719, b = 0x80F30FED, c = 0x81EF70CC, d = 0xBC6EF2EF;
             uint ma = 0xDEF03F01, mb = 0x42D0ACD2, mc = 0x1749BEF1, md = 0xEA30FF94;
 
-            ulong high, low;
+            unchecked{/*LX4Cnh (c) Denis Kuzmin <x-3F@outlook.com> github/3F */ulong A=(ulong)b*mb;ulong B=A&0xFFFF_FFFF;ulong C=((A>>32)+B+(a*ma))&0xFFFF_FFFF;ulong D=(a>b)?a-b:b-a;ulong E=(ma>mb)?ma-mb:mb-ma;if(D!=0&&E!=0){ulong F=D*E;if(((a<b)&&(ma>mb))||((a>b)&&(ma<mb))){C+=F&0xFFFF_FFFF;}else{C-=F&0xFFFF_FFFF;}}ulong G=(C<<32)+B;A=(ulong)c*mc;ulong H=(ulong)d*md;B=(H>>32)+(H&0xFFF_FFFF_FFFF_FFFF)+(A&0xFFF_FFFF_FFFF_FFFF)+((A&0xFFF_FFFF)<<32);C=(((A>>28)+(A>>60)+(H>>60))<<28);ulong I=B;D=(c>d)?c-d:d-c;E=(mc>md)?mc-md:md-mc;if(D!=0&&E!=0){ulong F=D*E;if(((c<d)&&(mc>md))||((c>d)&&(mc<md))){I+=F;if(B>I)C+=0x100000000;}else{I-=F;if(B<I)C-=0x100000000;}}ulong J=((I&0xFFFF_FFFF)<<32)+(H&0xFFFF_FFFF);C=G+J+C+(I>>32);G=((ulong)a<<32)+b;I=((ulong)c<<32)+d;A=((ulong)ma<<32)+mb;H=((ulong)mc<<32)+md;D=(G>I)?G-I:I-G;E=(A>H)?A-H:H-A;if(D!=0&&E!=0){ulong F=D*E;if(((G<I)&&(A>H))||((G>I)&&(A<H))){C+=F;}else{C-=F;}}low=J;high=C;}
 
-            for(int i = 0; i < 10; ++i)
-                unchecked{/*(c) Denis Kuzmin <x-3F@outlook.com> github/3F */ulong A=(ulong)b*mb;ulong B=A&0xFFFF_FFFF;ulong C=((A>>32)+B+(a*ma))&0xFFFF_FFFF;ulong D=(a>b)?a-b:b-a;ulong E=(ma>mb)?ma-mb:mb-ma;if(D!=0&&E!=0){ulong F=D*E;if((!(a>b)&&(ma>mb))||((a>b)&&!(ma>mb))){C+=F&0xFFFF_FFFF;}else{C-=F&0xFFFF_FFFF;}}ulong G=(C<<32)+B;A=(ulong)c*mc;ulong H=(ulong)d*md;B=(H>>32)+(H&0xFFF_FFFF_FFFF_FFFF)+(A&0xFFF_FFFF_FFFF_FFFF)+((A&0xFFF_FFFF)<<32);C=((((A>>28)+(A>>60)+(H>>60))<<28)>>16)+(B>>48);ulong I=B&0xFFFF_FFFF_FFFF;D=(c>d)?c-d:d-c;E=(mc>md)?mc-md:md-mc;if(D!=0&&E!=0){ulong F=D*E;ulong J=(F>>48);ulong K=F&0xFFFF_FFFF_FFFF;B=I;if((!(c>d)&&(mc>md))||((c>d)&&!(mc>md))){I+=K;C+=J;if(B>(I&0xFFFF_FFFF_FFFF))++C;}else{I-=K;C-=J;if(B<(I&0xFFFF_FFFF_FFFF))--C;}}ulong L=((I&0xFFFF_FFFF)<<32)+(H&0xFFFF_FFFF);C=G+L+((C<<16)+((I>>32)&0xFFFF));G=((ulong)a<<32)+b;I=((ulong)c<<32)+d;A=((ulong)ma<<32)+mb;H=((ulong)mc<<32)+md;D=(G>I)?G-I:I-G;E=(A>H)?A-H:H-A;if(D!=0&&E!=0){ulong F=D*E;if((!(G>I)&&(A>H))||((G>I)&&!(A>H))){C+=F;}else{C-=F;}}low=L;high=C;}
+            _ = high; _ = low;
         }
     }
 }

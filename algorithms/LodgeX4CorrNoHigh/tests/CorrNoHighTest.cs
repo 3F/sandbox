@@ -126,5 +126,18 @@ namespace Tests
             Assert.Equal(BitConverter.ToUInt64(data, 0), low);
             Assert.Equal(BitConverter.ToUInt64(data, 8), high);
         }
+
+        [Theory]
+        [MemberData(nameof(GetMulNumbers))]
+        public void MulViaEmbdTest1(byte[] input, byte[] mul, uint a, uint b, uint c, uint d, uint ma, uint mb, uint mc, uint md)
+        {
+            ulong high, low;
+            unchecked{/*LX4Cnh (c) Denis Kuzmin <x-3F@outlook.com> github/3F */ulong A=(ulong)b*mb;ulong B=A&0xFFFF_FFFF;ulong C=((A>>32)+B+(a*ma))&0xFFFF_FFFF;ulong D=(a>b)?a-b:b-a;ulong E=(ma>mb)?ma-mb:mb-ma;if(D!=0&&E!=0){ulong F=D*E;if(((a<b)&&(ma>mb))||((a>b)&&(ma<mb))){C+=F&0xFFFF_FFFF;}else{C-=F&0xFFFF_FFFF;}}ulong G=(C<<32)+B;A=(ulong)c*mc;ulong H=(ulong)d*md;B=(H>>32)+(H&0xFFF_FFFF_FFFF_FFFF)+(A&0xFFF_FFFF_FFFF_FFFF)+((A&0xFFF_FFFF)<<32);C=(((A>>28)+(A>>60)+(H>>60))<<28);ulong I=B;D=(c>d)?c-d:d-c;E=(mc>md)?mc-md:md-mc;if(D!=0&&E!=0){ulong F=D*E;if(((c<d)&&(mc>md))||((c>d)&&(mc<md))){I+=F;if(B>I)C+=0x100000000;}else{I-=F;if(B<I)C-=0x100000000;}}ulong J=((I&0xFFFF_FFFF)<<32)+(H&0xFFFF_FFFF);C=G+J+C+(I>>32);G=((ulong)a<<32)+b;I=((ulong)c<<32)+d;A=((ulong)ma<<32)+mb;H=((ulong)mc<<32)+md;D=(G>I)?G-I:I-G;E=(A>H)?A-H:H-A;if(D!=0&&E!=0){ulong F=D*E;if(((G<I)&&(A>H))||((G>I)&&(A<H))){C+=F;}else{C-=F;}}low=J;high=C;}
+
+            byte[] data = MultiplyViaBigInteger(input, mul);
+
+            Assert.Equal(BitConverter.ToUInt64(data, 0), low);
+            Assert.Equal(BitConverter.ToUInt64(data, 8), high);
+        }
     }
 }

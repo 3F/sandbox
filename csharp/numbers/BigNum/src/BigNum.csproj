@@ -3,7 +3,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net472</TargetFrameworks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <RootNamespace>net.r_eg.sandbox.BigNum</RootNamespace>
+    <NoWarn>1701;1702;IDE0059</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +14,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\..\..\algorithms\LodgeX4CorrNoHigh\src\LodgeX4CorrNoHigh.cs" />
-  </ItemGroup>  
+    <Compile Include="..\..\..\..\algorithms\MLnoCS\src\MulLowNoCorrShifts16.cs" />
+  </ItemGroup>
 
 </Project>

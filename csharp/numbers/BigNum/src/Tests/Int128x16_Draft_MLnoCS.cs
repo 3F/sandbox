@@ -33,10 +33,10 @@ namespace net.r_eg.sandbox.BigNum.Tests
     /// <summary>
     /// Part of https://twitter.com/github3F/status/1403748080760111106
     /// <br/>
-    /// Designed for 128x16 (expandable up to 128x32).
+    /// Designed for 128x16 (theoretically up to 128x32).
     /// </summary>
     /// <remarks>For complete 128x128 see <see cref="Int128x128_LodgeX4CorrNoHigh60Mid6x2"/>.</remarks>
-    public class Int128x16_32_MulLowNoCorrShifts
+    public class Int128x16_Draft_MLnoCS
     {
         private const uint PRIME_16 = 0x4D2F;
         // * 128-bit number 0x6c62272e07bb014262b821756295c58d
@@ -47,11 +47,11 @@ namespace net.r_eg.sandbox.BigNum.Tests
         |            BigIntegerByteArray |   260.613 ns |  2.2352 ns |  2.0908 ns |
         |             BigIntegerParseHex |   944.771 ns |  9.7613 ns |  9.1307 ns |
         |             BigIntegerParseDec | 6,208.890 ns | 45.8376 ns | 40.6338 ns |
-        |                  ManuallyBasic |    74.069 ns |  0.6500 ns |  0.6080 ns |
-        |               ManuallyNoCopyTo |    31.808 ns |  0.2676 ns |  0.2503 ns |
-        |              Manually4GetBytes |    43.697 ns |  0.2525 ns |  0.2361 ns |
-        |        ManuallyIndividualBytes |    18.661 ns |  0.1670 ns |  0.1562 ns |
-        | ManuallyIndividualBytesNoArray |     7.098 ns |  0.0738 ns |  0.0690 ns |
+        |               DraftMLnoCSBasic |    74.069 ns |  0.6500 ns |  0.6080 ns |
+        |            DraftMLnoCSNoCopyTo |    31.808 ns |  0.2676 ns |  0.2503 ns |
+        |           DraftMLnoCS4GetBytes |    43.697 ns |  0.2525 ns |  0.2361 ns |
+        |     DraftMLnoCSIndividualBytes |    18.661 ns |  0.1670 ns |  0.1562 ns |
+        |   DraftMLnoCSIndividualNoArray |     7.098 ns |  0.0738 ns |  0.0690 ns |
        */
 
         [Benchmark]
@@ -83,7 +83,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
         }
 
         [Benchmark]
-        public void ManuallyBasic()
+        public void DraftMLnoCSBasic()
         {
             ulong[] def128 = { 0x6c62272e, 0x07bb0142, 0x62b82175, 0x6295c58d };
             unchecked
@@ -103,7 +103,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
         }
 
         [Benchmark]
-        public void ManuallyNoCopyTo()
+        public void DraftMLnoCSNoCopyTo()
         {
             unchecked
             {
@@ -126,7 +126,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
         }
 
         [Benchmark]
-        public void Manually4GetBytes()
+        public void DraftMLnoCS4GetBytes()
         {
             unchecked
             {
@@ -153,7 +153,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
         }
 
         [Benchmark]
-        public void ManuallyIndividualBytes()
+        public void DraftMLnoCSIndividualBytes()
         {
             unchecked
             {
@@ -179,7 +179,7 @@ namespace net.r_eg.sandbox.BigNum.Tests
         }
 
         [Benchmark]
-        public void ManuallyIndividualBytesNoArray()
+        public void DraftMLnoCSIndividualNoArray()
         {
             ulong a = 0x6c62272e, b = 0x07bb0142, c = 0x62b82175, d = 0x6295c58d, r2, r3, r4;
             unchecked

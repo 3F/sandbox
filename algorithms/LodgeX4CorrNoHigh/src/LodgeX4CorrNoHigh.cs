@@ -25,31 +25,30 @@
 
 /*
  History:
-    * 2021.06.15: First idea/redesign after 'MulLowNoCorrShifts' algo (128-bit x 16 up to 32) https://twitter.com/github3F/status/1404187562592309256
+    * 2021.06.15: First idea/redesign after 'MulLowNoCorrShifts' (MLnoCS) algo (128-bit x 16) https://twitter.com/github3F/status/1404187562592309256
     * 2021.06.21: Logic formalization. Variations, calculations, and scaling.
     * 2021.06.27: First draft implementation using .NET/C#.
     * 2021.06.30: Final testing and optimizations for dotnet impl https://twitter.com/github3F/status/1410358979033813000
     * 2021.07.01: First public open source version. https://github.com/3F
- */
+    * 2021.07.17: Optimized .NET/C# implementation. 60Mid6x2 sync was simplified by calculation using full middle overflow.
+*/
 
 namespace net.r_eg.sandbox.algorithms
 {
     /// <summary>
     /// The high-speed multiplications of 128-bit numbers. <br/>
-    /// Use embeddable version to reach super speed ~0.02 ns per multiplication
+    /// Use embeddable version to reduce the amount of unnecessary stack manipulations
     /// </summary>
     /// <remarks>https://twitter.com/github3F/status/1410358979033813000</remarks>
     public static class LodgeX4CorrNoHigh
     {
         /* --- Embeddable superfast version --- */
 
-        // One 128x128 multiplication requires less than ~ 0.02 ns == 0.00000000002 sec (1 ns == 0.000000001 sec)
-
         //uint a = 0xC1F42719, b = 0x80F30FED, c = 0x81EF70CC, d = 0xBC6EF2EF;
         //uint ma = 0xDEF03F01, mb = 0x42D0ACD2, mc = 0x1749BEF1, md = 0xEA30FF94;
         ////-
         //ulong high, low;
-        //unchecked{/*(c) Denis Kuzmin <x-3F@outlook.com> github/3F */ulong A=(ulong)b*mb;ulong B=A&0xFFFF_FFFF;ulong C=((A>>32)+B+(a*ma))&0xFFFF_FFFF;ulong D=(a>b)?a-b:b-a;ulong E=(ma>mb)?ma-mb:mb-ma;if(D!=0&&E!=0){ulong F=D*E;if((!(a>b)&&(ma>mb))||((a>b)&&!(ma>mb))){C+=F&0xFFFF_FFFF;}else{C-=F&0xFFFF_FFFF;}}ulong G=(C<<32)+B;A=(ulong)c*mc;ulong H=(ulong)d*md;B=(H>>32)+(H&0xFFF_FFFF_FFFF_FFFF)+(A&0xFFF_FFFF_FFFF_FFFF)+((A&0xFFF_FFFF)<<32);C=((((A>>28)+(A>>60)+(H>>60))<<28)>>16)+(B>>48);ulong I=B&0xFFFF_FFFF_FFFF;D=(c>d)?c-d:d-c;E=(mc>md)?mc-md:md-mc;if(D!=0&&E!=0){ulong F=D*E;ulong J=(F>>48);ulong K=F&0xFFFF_FFFF_FFFF;B=I;if((!(c>d)&&(mc>md))||((c>d)&&!(mc>md))){I+=K;C+=J;if(B>(I&0xFFFF_FFFF_FFFF))++C;}else{I-=K;C-=J;if(B<(I&0xFFFF_FFFF_FFFF))--C;}}ulong L=((I&0xFFFF_FFFF)<<32)+(H&0xFFFF_FFFF);C=G+L+((C<<16)+((I>>32)&0xFFFF));G=((ulong)a<<32)+b;I=((ulong)c<<32)+d;A=((ulong)ma<<32)+mb;H=((ulong)mc<<32)+md;D=(G>I)?G-I:I-G;E=(A>H)?A-H:H-A;if(D!=0&&E!=0){ulong F=D*E;if((!(G>I)&&(A>H))||((G>I)&&!(A>H))){C+=F;}else{C-=F;}}low=L;high=C;}
+        //unchecked{/*LX4Cnh (c) Denis Kuzmin <x-3F@outlook.com> github/3F */ulong A=(ulong)b*mb;ulong B=A&0xFFFF_FFFF;ulong C=((A>>32)+B+(a*ma))&0xFFFF_FFFF;ulong D=(a>b)?a-b:b-a;ulong E=(ma>mb)?ma-mb:mb-ma;if(D!=0&&E!=0){ulong F=D*E;if(((a<b)&&(ma>mb))||((a>b)&&(ma<mb))){C+=F&0xFFFF_FFFF;}else{C-=F&0xFFFF_FFFF;}}ulong G=(C<<32)+B;A=(ulong)c*mc;ulong H=(ulong)d*md;B=(H>>32)+(H&0xFFF_FFFF_FFFF_FFFF)+(A&0xFFF_FFFF_FFFF_FFFF)+((A&0xFFF_FFFF)<<32);C=(((A>>28)+(A>>60)+(H>>60))<<28);ulong I=B;D=(c>d)?c-d:d-c;E=(mc>md)?mc-md:md-mc;if(D!=0&&E!=0){ulong F=D*E;if(((c<d)&&(mc>md))||((c>d)&&(mc<md))){I+=F;if(B>I)C+=0x100000000;}else{I-=F;if(B<I)C-=0x100000000;}}ulong J=((I&0xFFFF_FFFF)<<32)+(H&0xFFFF_FFFF);C=G+J+C+(I>>32);G=((ulong)a<<32)+b;I=((ulong)c<<32)+d;A=((ulong)ma<<32)+mb;H=((ulong)mc<<32)+md;D=(G>I)?G-I:I-G;E=(A>H)?A-H:H-A;if(D!=0&&E!=0){ulong F=D*E;if(((G<I)&&(A>H))||((G>I)&&(A<H))){C+=F;}else{C-=F;}}low=J;high=C;}
 
         /* -- */
 
@@ -83,7 +82,7 @@ namespace net.r_eg.sandbox.algorithms
                 {
                     ulong dd = d1 * d2; // 0 - FFFF_FFFE_0000_0001
 
-                    if((!(a > b) && (ma > mb)) || ((a > b) && !(ma > mb)))
+                    if(((a < b) && (ma > mb)) || ((a > b) && (ma < mb)))
                     {
                         f += dd & 0xFFFF_FFFF;
                     }
@@ -100,8 +99,8 @@ namespace net.r_eg.sandbox.algorithms
 
                 v = (r2 >> 32) + (r2 & 0xFFF_FFFF_FFFF_FFFF) + (r & 0xFFF_FFFF_FFFF_FFFF) + ((r & 0xFFF_FFFF) << 32); // v2Middle
 
-                f /*f21*/   = ((((r >> 28) + (r >> 60) + (r2 >> 60)) << 28) >> 16) + (v >> 48);
-                ulong f2    = v & 0xFFFF_FFFF_FFFF; //f22
+                f /*f21*/   = (((r >> 28) + (r >> 60) + (r2 >> 60)) << 28);
+                ulong f2    = v; //f22
             
                 d1 = AbsMinus(c, d);
                 d2 = AbsMinus(mc, md);
@@ -110,31 +109,22 @@ namespace net.r_eg.sandbox.algorithms
                 {
                     ulong dd = d1 * d2; // 0 - FFFF_FFFE_0000_0001
 
-                    ulong dd1 = (dd >> 48) /*& 0xFFFF*/;
-                    ulong dd2 = dd & 0xFFFF_FFFF_FFFF;
-
-                    v = f2;
-
-                    if((!(c > d) && (mc > md)) || ((c > d) && !(mc > md)))
+                    if(((c < d) && (mc > md)) || ((c > d) && (mc < md)))
                     {
-                        f2 += dd2;
-                        f += dd1;
-
-                        if(v > (f2 & 0xFFFF_FFFF_FFFF)) ++f; // sync f21 and f22 when overflow
+                        f2 += dd;
+                        if(v > f2) f += 0x100000000;
                     }
                     else
                     {
-                        f2 -= dd2;
-                        f -= dd1;
-
-                        if(v < (f2 & 0xFFFF_FFFF_FFFF)) --f;
+                        f2 -= dd;
+                        if(v < f2) f -= 0x100000000;
                     }
                 }
 
                 ulong fLowMiddle = ((f2 & 0xFFFF_FFFF) << 32) + (r2 & 0xFFFF_FFFF);
 
                 // overflow is possible but for current 128-bit it's most high numbers
-                f = fHigh + fLowMiddle + ((f << 16) + ((f2 >> 32) & 0xFFFF)); // resHigh
+                f = fHigh + fLowMiddle + f + (f2 >> 32); // resHigh
 
                 fHigh   = ((ulong)a << 32) + b; //fa
                 f2      = ((ulong)c << 32) + d; //fb
@@ -148,7 +138,7 @@ namespace net.r_eg.sandbox.algorithms
                 {
                     ulong dd = d1 * d2;
 
-                    if((!(fHigh > f2) && (r > r2)) || ((fHigh > f2) && !(r > r2)))
+                    if(((fHigh < f2) && (r > r2)) || ((fHigh > f2) && (r < r2)))
                     {
                         f += dd;
                     }
@@ -170,7 +160,7 @@ namespace net.r_eg.sandbox.algorithms
         /// <param name="b">Low 64 bits of the input value.</param>
         /// <param name="ma">High 64 bits of the multiplier.</param>
         /// <param name="mb">Low 64 bits of the multiplier.</param>
-        /// <param name="low">Low 6 bits from a 128-bit result.</param>
+        /// <param name="low">Low 64 bits from a 128-bit result.</param>
         /// <returns>High 64 bits from a 128-bit result.</returns>
         public static ulong Multiply(ulong a, ulong b, ulong ma, ulong mb, out ulong low) => Multiply
         (

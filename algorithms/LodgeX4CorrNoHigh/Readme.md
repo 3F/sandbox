@@ -1,12 +1,12 @@
-*LodgeX4CorrNoHigh* algorithm of the high-speed multiplications of **128-bit** numbers.
+*LodgeX4CorrNoHigh* (LX4Cnh) algorithm of the high-speed multiplications of **128-bit** numbers (full range, 128 × 128).
 
 ```
 Copyright (c) 2021  Denis Kuzmin <x-3F@outlook.com> github/3F
 ```
 
-[ [ ☕ Make a donation ](https://3F.github.io/Donation/) ]
+[ [ ☕ ](https://3F.github.io/Donation/) ]
 
-[![](benchmark.png)](https://twitter.com/github3F/status/1410358979033813000)
+Part of https://twitter.com/github3F/status/1403748080760111106
 
 * Part of https://twitter.com/github3F/status/1403748080760111106
 
