@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net472;net5.0</TargetFrameworks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>net.r_eg.sandbox.Hash.Tests</RootNamespace>
+    <NoWarn>1701;1702;IDE0059</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FNV-1a.csproj" />
+  </ItemGroup>
+
+</Project>
