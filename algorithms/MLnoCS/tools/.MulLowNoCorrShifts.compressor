@@ -8,7 +8,7 @@
 
 <!--
     !!! This is a modified version taken from old GetNuTool project (batch).
-    A quick/dirty adapting specially for LodgeX4CorrNoHigh algorithm implementation (n. Embeddable superfast version).
+    A quick/dirty adapting specially for MulLowNoCorrShifts algorithm implementation (n. Embeddable superfast version).
     Do not use this in production because this is not for common use.
 -->
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -21,7 +21,8 @@
 
     <!-- Entry point -->
     <Target Name="handler" BeforeTargets="Build">
-        <Compress core="$(core)" output="$(output)" />
+        <Compress core="$(core)" output="$(output)." mutable="true" />
+        <Compress core="$(core)" output="$(output)." mutable="false" />
     </Target>
     
     <!-- Tasks settings -->
@@ -39,6 +40,7 @@
         <ParameterGroup>
             <core ParameterType="System.String" Required="true" />
             <output ParameterType="System.String" Required="true" />
+            <mutable ParameterType="System.Boolean"/>
         </ParameterGroup>
 
         <Task>
@@ -84,10 +86,11 @@
 
                     var variables = new Dictionary<string, string>();
 
-                    var cdict = new[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-                                        'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-                                        'U', 'V', 'W', 'X', 'Y', 'z', '0', '1', '2', '3',
-                                        '4', '5', '6', '7', '8', '9', '_' };
+                    var cdict = new[] { 'e', 'f', 'g', 'h',
+                                        'k', 'l', 'o', 'p', 'q', 'r', 's', 't',
+                                        'u', 'v', 'w', '0', '1', '2', '3',
+                                        '4', '5', '6', '7', '8', '9', '_', 
+                                        'A', 'B', 'C', 'D', 'I', 'J', 'M', 'N', 'X', 'Y', 'Z',};
 
                     Func<int, bool> rule = (int i) => { return char.IsLetter(cdict[i]) || cdict[i] == '_'; };
                     var vdict1 = gencomb(cdict, 1, rule);
@@ -98,10 +101,12 @@
                     vdict2.CopyTo(vdict, vdict1.Length);
 
                     // to skip processing for:
-                    var exvar = new string[] { "true", "false", "a", "b", "c", "d", "ma", "mb", "mc", "md", "high", "low", "ulong", "uint", "long", "int", };
+                    var exvar = new string[] { "true", "false", "a", "b", "c", "d", "ra", "rb", "rc", "rd", "prime", "ulong", "uint", "long", "int", "ushort", "short" };
 
                     // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/
                     var rsvwords = new[] { "do", "in", "is", "as", "if", "by", "on" };
+
+                    string mutableStr = mutable ? "mutable" : "immutable";
 
                     const string VTYPE  = @"(?:
                                             (?'type'
@@ -133,6 +138,11 @@
                                           [\s\S]+", (Match m) =>
                         {
                             string data = m.Groups[1].Value;
+
+                            if(!mutable)
+                            {
+                                data = data.Replace("/*r*/", "r");
+                            }
 
                             // comments
 
@@ -256,13 +266,13 @@
                         content = Regex.Replace(content, @"\s{2,}", " ");
                         content = Regex.Replace(content, @"\s*([=,()\[\];:.&|{}\/<>]+)\s*", "$1");
 
-                        content = content.Replace("unchecked{", "unchecked{/*LX4Cnh (c) " + _c + " */");
-                        
+                        content = content.Replace("unchecked{", "unchecked{/*[" + mutableStr + "] MLnoCS (c) " + _c + " */");
 
+                        output += mutableStr + ".embd";
                         using(TextWriter writer = new StreamWriter(output, false, new UTF8Encoding(false))) {
                             writer.Write(content);
                         }
-                        Console.WriteLine("Portable version of `{0}` has been created -> `{1}`", core, output);
+                        Console.WriteLine("Embeddable version of `{0}` has been created -> `{1}`", core, output);
                     }
                 ]]>
             </Code>
