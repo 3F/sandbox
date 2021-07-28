@@ -13,7 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\..\..\algorithms\LodgeX4CorrNoHigh\src\LodgeX4CorrNoHigh.cs" />
     <Compile Include="..\..\..\..\algorithms\MLnoCS\src\MulLowNoCorrShifts16.cs" />
   </ItemGroup>
 

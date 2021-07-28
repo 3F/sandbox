@@ -8,8 +8,11 @@ This repository may contain everything related to my experiments and similar, su
 
 Some of these things even can grow into separate projects like it was already, for example,
 
-* [Fastest C++ regex-like wildcards](https://github.com/3F/regXwild)
-* [Statistics for each attachment on GitHub.com](https://github.com/3F/GhrMeter.user.js)
+* [Fastest C++ regex-like wildcards](https://github.com/3F/regXwild);
+* [Statistics for each attachment on GitHub.com](https://github.com/3F/GhrMeter.user.js);
+* [Algorithm of the high-speed multiplication of LARGE numbers](https://github.com/3F/LX4Cnh);
+* [FNV-1a. High-speed 「 128-bit 」 implementation](https://github.com/3F/Fnv1a128);
+
 
 time will tell...
 
@@ -21,13 +24,17 @@ Some of these things can be discussed using 🗞 twitter [@github3F](https://twi
 
 The default license is [MIT License (MIT)](https://github.com/3F/sandbox/blob/master/LICENSE) but it can be different for specific folders and projects. Some specific projects also may include or reference various software components. ⚠ You must follow their accompanying licenses depending on their use.
 
-```
-Copyright (c) 2013-present  Denis Kuzmin <x-3F@outlook.com> github/3F
+```r
+Copyright (c)  Denis Kuzmin <x-3F@outlook.com> github/3F
 ```
 
-[ [ ☕ Make a donation ](https://3F.github.io/Donation/) ]
+[ [ <sub>@</sub> ☕ ] ](https://3F.github.io/Donation/)
 
-## 💡 How to get only specific project or folder
+<br/>
+
+## How to get only specific project or folder
+
+💡
 
 **[ghdir](https://github.com/3F/sandbox/tree/master/shell/ghdir)** or related commands; 
 
